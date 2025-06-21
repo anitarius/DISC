@@ -6,6 +6,8 @@ import seaborn as sns
 import io
 from PIL import Image 
 from docx.shared import Pt, RGBColor, Inches
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.shared import Pt, RGBColor, Inches
 
 
 def frontend():
@@ -209,6 +211,40 @@ def procesar_archivo(uploaded_file):
 
     #ARMAR documento
     document = Document()
+
+
+# Inserta el logo en la esquina superior derecha
+    header_table = document.add_table(rows=1, cols=2)
+    row = header_table.rows[0].cells
+    row[0].paragraphs[0].add_run("¡Hola {nombre}!".format(nombre)).bold = True
+    row[0].paragraphs[0].runs[0].font.size = Pt(22)
+    row[0].paragraphs[0].runs[0].font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+    row[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+# Inserta imagen a la derecha
+     paragraph_logo = row[1].paragraphs[0]
+    run_logo = paragraph_logo.add_run()
+    run_logo.add_picture("logo.png", width=Inches(1.2))
+    paragraph_logo.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
+# Espaciado después del encabezado
+    document.add_paragraph()
+
+# Texto introductorio
+    p1 = document.add_paragraph()
+    p1.add_run(
+    "A continuación, verás el resultado de tu test DISC.\n"
+    "En síntesis, esta prueba mide cómo hacemos las cosas y cómo nos relacionamos con los demás.\n"
+    "Nos brinda información sobre cómo es nuestro estilo en tres situaciones: el estilo que tenemos "
+    "de comportamiento diario o integral (el que ponemos en juego cuando nos desenvolvemos cotidianamente "
+    "en el mundo), el estilo natural o de motivación y el estilo adaptado ante situaciones de tensión."
+    )
+    for run in p1.runs:
+    run.font.size = Pt(12)
+    run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+    p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+
     from docx.shared import Inches
     from docx.enum.text import WD_ALIGN_PARAGRAPH
 
