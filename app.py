@@ -3,12 +3,13 @@ import pandas as pd
 from docx import Document
 import matplotlib.pyplot as plt
 import seaborn as sns
-from docx.shared import Inches
 import io
 from PIL import Image 
+from docx.shared import Pt, RGBColor, Inches
+
 
 def frontend():
-    image_path = "portada.jpg"  # Debe estar en la misma carpeta que app.py
+    image_path = "portada.jpeg"  # Debe estar en la misma carpeta que app.py
     try:
         portada = Image.open(image_path)
         st.image(portada, use_column_width=True)
@@ -208,17 +209,66 @@ def procesar_archivo(uploaded_file):
 
     #ARMAR documento
     document = Document()
-    document.add_heading('Resultados DISC', level=0)
-    document.add_paragraph(f"Nombre: {nombre}")
-    document.add_paragraph(f"Edad: {edad}")
-    document.add_paragraph(f"Fecha: {fecha}")
+    from docx.shared import Inches
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+    # Change document margin
+    sections = document.sections
+    for section in sections:
+        section.top_margin = Inches(0.75)
+        section.bottom_margin = Inches(0.75)
+        section.left_margin = Inches(0.75)
+        section.right_margin = Inches(0.75)
+
+    # INSERTAR LOGO EN EL ENCABEZADO (alineado a la derecha)
+    section = document.sections[0]
+    header = section.header
+    paragraph = header.paragraphs[0]
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    run = paragraph.add_run()
+    run.add_picture('logo.png', width=Inches(1.9))
+
+# Espaciado después del encabezado
+    document.add_paragraph()
+# TÍTULO PRINCIPAL (¡Hola Roberta!)
+    titulo = document.add_paragraph()
+    titulo.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    run = titulo.add_run(f"¡Hola {nombre}!")
+    run.bold = True
+    run.font.color.rgb = RGBColor(44, 62, 80)
+    run.font.size = Pt(24)
+    run.font.name = "Arial"
+    
+# Texto introductorio
+    p1 = document.add_paragraph()
+    p1.add_run(
+    "A continuación, verás el resultado de tu test "
+    )
+    p1.add_run("DISC.\n").bold = True
+    p1.add_run("En síntesis, esta prueba mide cómo hacemos las cosas y cómo nos relacionamos con los demás.\n"
+    "Nos brinda información sobre cómo es nuestro estilo en tres situaciones: el estilo que tenemos "
+    "de comportamiento diario o integral (el que ponemos en juego cuando nos desenvolvemos cotidianamente "
+    "en el mundo), el estilo natural o de motivación y el estilo adaptado ante situaciones de tensión."
+    )
+    for run in p1.runs:
+        run.font.size = Pt(12)
+        run.font.name = 'Arial'
+        run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+        p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
     
     import seaborn as sns
     
     #primer grafico
     disc_labels = ['D','I','S','C']
-    document.add_heading('Comportamiento Diario', level=1)
-    document.add_paragraph(f"El Patrón resultante para tu comportamiento diario es: {interpretacion_x3[0]}")
+
+    #titulo
+    titulo = document.add_paragraph()
+    titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = titulo.add_run(f"PERFIL INTEGRAL (COMPORTAMIENTO DIARIO): {interpretacion_x3[0]}")
+    run.bold = True
+    run.font.size = Pt(12)
+    run.font.name = "Aptos"
     plt.figure(figsize=(6, 5))
     colors = ['#FF9999', '#FFFF99', '#99FF99', '#99CCFF'] 
     sns.barplot(x=disc_labels, y=x3, palette=colors)
@@ -228,33 +278,50 @@ def procesar_archivo(uploaded_file):
         plt.hlines(score, i - 0.4, i + 0.4, color='black', linestyles='dashed')
     plt.savefig('x3_plot.png')
     from docx.shared import Inches
+    from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+
     document.add_picture('x3_plot.png', width=Inches(5)) 
-    document.add_heading('Sección X1 y X2', level=1)
+    last_paragraph = document.paragraphs[-1] 
+    last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    # Espaciado después del encabezado
+    document.add_page_break()
+
+    document.add_paragraph()
+
+    titulo = document.add_paragraph()
+    titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = titulo.add_run(f"PERFIL DE MOTIVACIÓN: {interpretacion_x1[0]}           PERFIL DE BAJO PRESIÓN: {interpretacion_x2[0]}")
+    run.bold = True
+    run.font.size = Pt(12)
+    run.font.name = "Aptos"
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 7)) 
 
     colors = ['#FF9999', '#FFFF99', '#99FF99', '#99CCFF'] 
 
     # Plot X1 on the left subplot
+   
     sns.barplot(x=disc_labels, y=x1, palette=colors, ax=axes[0])
-    axes[0].set_title('Histogram of X1 Scores')
+    axes[0].set_title('Perfil de motivación')
     axes[0].set_ylim(0, 8)
     for i, score in enumerate(x1):
         axes[0].hlines(score, i - 0.4, i + 0.4, color='black', linestyles='dashed')
 
     # Plot X2 on the right subplot
     sns.barplot(x=disc_labels, y=x2, palette=colors, ax=axes[1])
-    axes[1].set_title('Histogram of X2 Scores')
+    axes[1].set_title('Perfil bajo presión')
     axes[1].set_ylim(0, 8)
     for i, score in enumerate(x2):
         axes[1].hlines(score, i - 0.4, i + 0.4, color='black', linestyles='dashed')
 
     plt.tight_layout() 
     plt.savefig('x1_x2_plots.png')
-    document.add_picture('x1_x2_plots.png', width=Inches(7)) # Adjust width as needed to fit increased figure size
 
-    document.add_paragraph(f"El patrón resultante para X1 es: {interpretacion_x1[0]}")
-    document.add_paragraph(f"El patrón resultante para X2 es: {interpretacion_x2[0]}")
+    from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+    document.add_picture('x1_x2_plots.png', width=Inches(6.7)) # Adjust width as needed to fit increased figure size
+    last_paragraph = document.paragraphs[-1] 
+    last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     #salida
     salida = st.text_input("✏️ Elegí un nombre para el archivo Word", value="informe_DISC")
