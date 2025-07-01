@@ -324,7 +324,8 @@ def procesar_archivo(uploaded_file):
     last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     #Perfil de comportamiento diario
-    
+    from docx import Document
+    import os
     document_to_append_path = f'/Diario/{interpretacion_x3[0]}.docx'
 
     if os.path.exists(document_to_append_path):
