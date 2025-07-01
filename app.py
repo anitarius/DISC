@@ -323,6 +323,19 @@ def procesar_archivo(uploaded_file):
     last_paragraph = document.paragraphs[-1] 
     last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
+    #Perfil de comportamiento diario
+    from docx import Document as Document2
+    document_to_append_path = f'/Diario/{interpretacion_x3[0]}.docx'
+
+    try:
+        doc_to_append = Document2(document_to_append_path)
+
+        for element in doc_to_append.element.body:
+            document.element.body.append(element)
+
+    except FileNotFoundError:
+        print(f"Error: The document to append was not found at the specified path: {document_to_append_path}")
+    
     #salida
     salida = st.text_input("✏️ Elegí un nombre para el archivo Word", value="informe_DISC")
 
