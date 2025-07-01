@@ -324,19 +324,179 @@ def procesar_archivo(uploaded_file):
     last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     #Perfil de comportamiento diario
-    from docx import Document
-    import os
-    document_to_append_path = f'/Diario/{interpretacion_x3[0]}.docx'
+    document.add_page_break()
+    from docx import Document as Document2
+    document_to_append_path = f'./Diario/{interpretacion_x3[0]}.docx'
 
-    if os.path.exists(document_to_append_path):
-        doc_to_append = Document(document_to_append_path)
+    try:
+        doc_to_append = Document2(document_to_append_path)
 
-        # Agrega cada elemento del documento a insertar
         for element in doc_to_append.element.body:
+            # skip sectPr element to avoid breaking the document structure, the header.
+            if element.tag.endswith('sectPr'):
+                continue
             document.element.body.append(element)
-    else:
-        print(f"❌ Error: No se encontró el documento en la ruta: {document_to_append_path}")
+    except FileNotFoundError:
+        print(f"Error: The document to append was not found at the specified path: {document_to_append_path}")
+
+
+    doc_comportamiento = Document2()
+
+    # Comportamientos no explicados
+    with open(excel_file_interpretacion_path, 'rb') as f:
+        df_comps = pd.read_excel("comportamientos.xlsx")
+
+    diccionario = dict(zip(df_comps.iloc[:, 0], df_comps.iloc[:, 1]))
+
+
+    if interpretacion_x1[0]!=interpretacion_x2[0] or interpretacion_x2[0]!=interpretacion_x3 or interpretacion_x1[0]!=interpretacion_x3[0]:
+
+        titulo = doc_comportamiento.add_paragraph()
+        titulo.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        run = titulo.add_run(f"Tus perfiles adicionales")
+        run.bold = True
+        run.font.color.rgb = RGBColor(44, 62, 80)
+        run.font.size = Pt(24)
+        run.font.name = "Arial"
+        if interpretacion_x3[0] == interpretacion_x1[0] and interpretacion_x3[0] != interpretacion_x2[0]:
+            p1 = doc_comportamiento.add_paragraph()
+            p1.add_run( f"Tu perfil de Motivación o perfil natural es")
+            p1.add_run(f" {interpretacion_x1[0]}").bold = True
+            p1.add_run(", al igual que el que ponés en juego en una situación adaptada a la vida diaria. En cuanto al perfil que desarrollás bajo presión, en ese caso, te volvés")
+            p1.add_run(f" {interpretacion_x2[0]}.\n").bold=True
+            p1.add_run("Te contamos qué características ponés en juego en situaciones de presión.")
+            for run in p1.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Arial'
+                run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+            #agregar interpretacion_x2[0]
+            titulo = doc_comportamiento.add_paragraph()
+            titulo.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            run = titulo.add_run(f"Perfil {interpretacion_x2[0]}")
+            run.bold = True
+            run.font.color.rgb = RGBColor(44, 62, 80)
+            run.font.size = Pt(18)
+            run.font.name = "Arial"
+
+            p1 = doc_comportamiento.add_paragraph()
+            p1.add_run( diccionario.get(interpretacion_x2[0]))
+            for run in p1.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Arial'
+                run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+              
+         
+        elif interpretacion_x3[0] == interpretacion_x2[0] and interpretacion_x3[0] != interpretacion_x1[0]:
+            p1 = doc_comportamiento.add_paragraph()
+            p1.add_run( f"Tu perfil de Motivación o bajo presión es")
+            p1.add_run(f" {interpretacion_x2[0]}").bold = True
+            p1.add_run(", al igual que el que ponés en juego en una situación adaptada a la vida diaria. En cuanto a tu perfil de motivación o perfil natural este es  ")
+            p1.add_run(f" {interpretacion_x1[0]}.\n").bold=True
+            p1.add_run("Te contamos qué características desplegás en ese caso.")
+            for run in p1.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Arial'
+                run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
     
+            #agregar interpretacion_x1[0]
+            titulo = doc_comportamiento.add_paragraph()
+            titulo.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            run = titulo.add_run(f"Perfil {interpretacion_x1[0]}")
+            run.bold = True
+            run.font.color.rgb = RGBColor(44, 62, 80)
+            run.font.size = Pt(18)
+            run.font.name = "Arial"
+
+            p1 = doc_comportamiento.add_paragraph()
+            p1.add_run( diccionario.get(interpretacion_x1[0]))
+            for run in p1.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Arial'
+                run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+        elif interpretacion_x3[0] != interpretacion_x1[0] and interpretacion_x3[0] != interpretacion_x2[0]:
+
+            p1 = doc_comportamiento.add_paragraph()
+            p1.add_run( f"Tu perfil comportamiento en situaciones bajo presión es ")
+            p1.add_run(f" {interpretacion_x2[0]}.\n").bold = True
+            p1.add_run("Tu perfil de Motivación o perfil natural es  ")
+            p1.add_run(f" {interpretacion_x1[0]}.\n").bold=True
+            p1.add_run("Te contamos las características principales de estos perfiles.")
+            for run in p1.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Arial'
+                run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+               
+
+            #agregar interpretacion_x1[0]
+            titulo = doc_comportamiento.add_paragraph()
+            titulo.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            run = titulo.add_run(f"Perfil {interpretacion_x1[0]}")
+            run.bold = True
+            run.font.color.rgb = RGBColor(44, 62, 80)
+            run.font.size = Pt(18)
+            run.font.name = "Arial"
+
+            p1 = doc_comportamiento.add_paragraph()
+            p1.add_run( diccionario.get(interpretacion_x1[0]))
+            for run in p1.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Arial'
+                run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+              
+            #agregar interpretacion_x2[0]
+            titulo = doc_comportamiento.add_paragraph()
+            titulo.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            run = titulo.add_run(f"Perfil {interpretacion_x2[0]}")
+            run.bold = True
+            run.font.color.rgb = RGBColor(44, 62, 80)
+            run.font.size = Pt(18)
+            run.font.name = "Arial"
+
+            p1 = doc_comportamiento.add_paragraph()
+            p1.add_run( diccionario.get(interpretacion_x2[0]))
+            for run in p1.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Arial'
+                run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+               
+            
+        elif interpretacion_x3[0] != interpretacion_x1[0] and interpretacion_x1[0] == interpretacion_x2[0]:
+                      
+            p1 = doc_comportamiento.add_paragraph()
+            p1.add_run( f"Tu perfil de Motivación o perfil natural al igual que el perfil que desplegás Bajo Presión, es ")
+            p1.add_run(f" {interpretacion_x1[0]}. \n").bold = True
+            p1.add_run("Te contamos las características principales del mismo.")
+            
+            for run in p1.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Arial'
+                run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+                
+            #agregar_interpretacion_x1[0]
+            titulo = doc_comportamiento.add_paragraph()
+            titulo.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            run = titulo.add_run(f"Perfil {interpretacion_x1[0]}")
+            run.bold = True
+            run.font.color.rgb = RGBColor(44, 62, 80)
+            run.font.size = Pt(18)
+            run.font.name = "Arial"
+
+            p1 = doc_comportamiento.add_paragraph()
+            p1.add_run( diccionario.get(interpretacion_x1[0]))
+            for run in p1.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Arial'
+                run.font.color.rgb = RGBColor(44, 62, 80)  # Azul oscuro
+                
+
+    # Append el documento de comportamiento al documento principal
+    for element in doc_comportamiento.element.body:
+            # skip sectPr element to avoid breaking the document structure, the header.
+            if element.tag.endswith('sectPr'):
+                continue
+            document.element.body.append(element)
+
+
     #salida
     salida = st.text_input("✏️ Elegí un nombre para el archivo Word", value="informe_DISC")
 
