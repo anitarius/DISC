@@ -362,9 +362,9 @@ def procesar_archivo(uploaded_file):
             p1 = doc_comportamiento.add_paragraph()
             p1.add_run( f"Tu perfil de Motivación o perfil natural es")
             p1.add_run(f" {interpretacion_x1[0]}").bold = True
-            p1.add_run(", al igual que el que ponés en juego en una situación adaptada a la vida diaria. En cuanto al perfil que desarrollás bajo presión, en ese caso, te volvés")
+            p1.add_run("  En cuanto al perfil que desarrollás bajo presión, en ese caso, te volvés")
             p1.add_run(f" {interpretacion_x2[0]}.\n").bold=True
-            p1.add_run("Te contamos qué características ponés en juego en situaciones de presión.")
+            p1.add_run("Te contamos las características principales de este perfil.")
             for run in p1.runs:
                 run.font.size = Pt(12)
                 run.font.name = 'Arial'
@@ -388,7 +388,7 @@ def procesar_archivo(uploaded_file):
          
         elif interpretacion_x3[0] == interpretacion_x2[0] and interpretacion_x3[0] != interpretacion_x1[0]:
             p1 = doc_comportamiento.add_paragraph()
-            p1.add_run( f"Tu perfil de Motivación o bajo presión es")
+            p1.add_run( f"Tu perfil de Bajo presión es")
             p1.add_run(f" {interpretacion_x2[0]}").bold = True
             p1.add_run(", al igual que el que ponés en juego en una situación adaptada a la vida diaria. En cuanto a tu perfil de motivación o perfil natural este es  ")
             p1.add_run(f" {interpretacion_x1[0]}.\n").bold=True
